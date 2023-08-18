@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2014-2021 NicoHood
+Copyright (c) 2014-2015 NicoHood
 See the readme for credit to other people.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,34 +24,48 @@ THE SOFTWARE.
 // Include guard
 #pragma once
 
-// Software version
-#define HID_PROJECT_VERSION 284
+PhoneAPI::PhoneAPI(void)
+{
+	// Empty
+}
 
-#if ARDUINO < 10607
-#error HID Project requires Arduino IDE 1.6.7 or greater. Please update your IDE.
-#endif
+void PhoneAPI::begin(void) {
+	// release all buttons
+	end();
+}
 
-#if !defined(USBCON)
-#error HID Project can only be used with an USB MCU.
-#endif
+void PhoneAPI::end(void) {
+	memset(&_report, 0, sizeof(_report));
+	SendReport(&_report, sizeof(_report));
+}
 
-// Include all HID libraries (.a linkage required to work) properly
-#include "SingleReport/SingleAbsoluteMouse.h"
-#include "MultiReport/AbsoluteMouse.h"
-#include "SingleReport/BootMouse.h"
-#include "MultiReport/ImprovedMouse.h"
-#include "SingleReport/SingleConsumer.h"
-#include "MultiReport/Consumer.h"
-#include "SingleReport/SingleGamepad.h"
-#include "MultiReport/Gamepad.h"
-#include "SingleReport/SingleSystem.h"
-#include "MultiReport/System.h"
-#include "SingleReport/RawHID.h"
-#include "SingleReport/BootKeyboard.h"
-#include "MultiReport/ImprovedKeyboard.h"
-#include "SingleReport/SingleNKROKeyboard.h"
-#include "MultiReport/NKROKeyboard.h"
-#include "MultiReport/SurfaceDial.h"
-#include "MultiReport/Phone.h"
+void PhoneAPI::write(PhoneKeycode m) {
+	press(m);
+	release(m);
+}
 
-// Include Teensy HID afterwards to overwrite key definitions if used
+void PhoneAPI::press(PhoneKeycode m) {
+	// search for a free spot
+	for (uint8_t i = 0; i < sizeof(HID_PhoneControlReport_Data_t) / 2; i++) {
+		if (_report.keys[i] == HID_PHONE_UNASSIGNED) {
+			_report.keys[i] = m;
+			break;
+		}
+	}
+	SendReport(&_report, sizeof(_report));
+}
+
+void PhoneAPI::release(PhoneKeycode m) {
+	// search and release the keypress
+	for (uint8_t i = 0; i < sizeof(HID_PhoneControlReport_Data_t) / 2; i++) {
+		if (_report.keys[i] == m) {
+			_report.keys[i] = HID_PHONE_UNASSIGNED;
+			// no break to delete multiple keys
+		}
+	}
+	SendReport(&_report, sizeof(_report));
+}
+
+void PhoneAPI::releaseAll(void) {
+	end();
+}
