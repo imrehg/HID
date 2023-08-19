@@ -23,27 +23,25 @@ THE SOFTWARE.
 
 #include "Phone.h"
 
-
 static const uint8_t _hidMultiReportDescriptorPhone[] PROGMEM = {
-	/* Consumer Control (Sound/Media keys) */
-	0x05, 0x0B,									/* usage page (telephony device) */
-	0x09, 0x01, 								/* usage -- phone */
-	0xA1, 0x01, 								/* collection (application) */
-	0x85, HID_REPORTID_PHONE,					/* report id */
-	// /* 4 Media Keys */
-	0x15, 0x00, 								/* logical minimum */
-	0x26, 0xFF, 0x03, 							/* logical maximum (3ff) */
-	0x19, 0x00, 								/* usage minimum (0) */
-	0x2A, 0xFF, 0x03, 							/* usage maximum (3ff) */
-	0x95, 0x04, 								/* report count (4) */
-	0x75, 0x10, 								/* report size (16) */
-	0x81, 0x00, 								/* input */
-	0xC0 /* end collection */
+	0x05, 0x0b,	// USAGE_PAGE (Telephony Devices)
+	0x09, 0x05,	// USAGE (Headset)
+	0xa1, 0x01,	// COLLECTION (Application)
+	0x85, HID_REPORTID_PHONE,	//   REPORT_ID (1)
+		0x25, 0x01,	//   LOGICAL_MAXIMUM (1)
+		0x15, 0x00,	//   LOGICAL_MINIMUM (0)
+		0x09, 0x2f,	//   USAGE (Phone Mute)
+		0x75, 0x01,	//   REPORT_SIZE (1)
+		0x95, 0x01,	//   REPORT_COUNT (1)
+		0x81, 0x02,	//   INPUT (Data,Var,Abs)
+		0x95, 0x07,	//   REPORT_COUNT (7)
+		0x81, 0x03,	//   INPUT (Cnst,Var,Abs)
+	0xc0		// END_COLLECTION
 };
 
 Phone_::Phone_(void) 
 {
-	static HIDSubDescriptor node(_hidMultiReportDescriptorConsumer, sizeof(_hidMultiReportDescriptorConsumer));
+	static HIDSubDescriptor node(_hidMultiReportDescriptorPhone, sizeof(_hidMultiReportDescriptorPhone));
 	HID().AppendDescriptor(&node);
 }
 

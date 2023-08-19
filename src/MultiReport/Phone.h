@@ -29,7 +29,6 @@ THE SOFTWARE.
 #include "HID-Settings.h"
 #include "../HID-APIs/PhoneAPI.h"
 
-
 class Phone_ : public PhoneAPI
 {
 public:

@@ -29,43 +29,29 @@ PhoneAPI::PhoneAPI(void)
 	// Empty
 }
 
-void PhoneAPI::begin(void) {
+void PhoneAPI::begin(void){
 	// release all buttons
 	end();
 }
 
-void PhoneAPI::end(void) {
-	memset(&_report, 0, sizeof(_report));
+void PhoneAPI::end(void){
+	PhoneKeycode _report = HID_PHONE_UNASSIGNED;
 	SendReport(&_report, sizeof(_report));
 }
 
-void PhoneAPI::write(PhoneKeycode m) {
-	press(m);
-	release(m);
+void PhoneAPI::write(PhoneKeycode p){
+	press(p);
+	release();
 }
 
-void PhoneAPI::press(PhoneKeycode m) {
-	// search for a free spot
-	for (uint8_t i = 0; i < sizeof(HID_PhoneControlReport_Data_t) / 2; i++) {
-		if (_report.keys[i] == HID_PHONE_UNASSIGNED) {
-			_report.keys[i] = m;
-			break;
-		}
-	}
-	SendReport(&_report, sizeof(_report));
+void PhoneAPI::release(void){
+	begin();
 }
 
-void PhoneAPI::release(PhoneKeycode m) {
-	// search and release the keypress
-	for (uint8_t i = 0; i < sizeof(HID_PhoneControlReport_Data_t) / 2; i++) {
-		if (_report.keys[i] == m) {
-			_report.keys[i] = HID_PHONE_UNASSIGNED;
-			// no break to delete multiple keys
-		}
-	}
-	SendReport(&_report, sizeof(_report));
+void PhoneAPI::releaseAll(void){
+	begin();
 }
 
-void PhoneAPI::releaseAll(void) {
-	end();
+void PhoneAPI::press(PhoneKeycode p){
+	SendReport(&p, sizeof(p));
 }
